@@ -60,9 +60,12 @@ def load_test(key: str) -> None:
     model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=bnb, device_map="auto")
 
     messages = [{"role": "user", "content": "경기도 수원의 김치찌개 맛집을 한 문장으로 소개해줘."}]
-    inputs = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt").to(model.device)
-    out = model.generate(inputs, max_new_tokens=64, do_sample=False)
-    print("샘플 출력    :", tokenizer.decode(out[0][inputs.shape[1]:], skip_special_tokens=True))
+    inputs = tokenizer.apply_chat_template(
+        messages, add_generation_prompt=True, return_tensors="pt", return_dict=True
+    ).to(model.device)
+    out = model.generate(**inputs, max_new_tokens=64, do_sample=False)
+    prompt_len = inputs["input_ids"].shape[1]
+    print("샘플 출력    :", tokenizer.decode(out[0][prompt_len:], skip_special_tokens=True))
     print(f"VRAM 사용    : {torch.cuda.max_memory_allocated() / 1024**3:.1f} GB")
     print("로드 테스트  : ✓ 통과")
 
