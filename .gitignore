@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Secrets
+.env
+
+# 대용량 산출물 (모델·데이터는 커밋하지 않음)
+outputs/adapters/*
+!outputs/adapters/.gitkeep
+data/synthetic/*
+!data/synthetic/.gitkeep
+*.safetensors
+*.gguf
+chroma_db/
+
+# OS
+.DS_Store

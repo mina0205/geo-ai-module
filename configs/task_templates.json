@@ -1,0 +1,54 @@
+{
+  "version": "0.1",
+  "updated": "2026-07-21",
+  "description": "RAG+LoRA 콘텐츠 생성 모듈 태스크 템플릿 (기능명세서 FR-03). 학습 데이터 생성기(Day2~3)와 추론 프롬프트 조립에 공통으로 사용한다.",
+  "review_policy": {
+    "mode": "explicit_none",
+    "rule": "리뷰 요약이 없는 점포는 '리뷰 요약' 필드를 생략하지 않고 반드시 '없음'으로 표기한다. 입력 포맷을 항상 동일하게 유지해 모델이 리뷰 부재를 명시적으로 학습하게 하고, 없는 리뷰를 지어내지 않도록 한다.",
+    "none_token": "없음",
+    "no_review_ratio_target": 0.6
+  },
+  "store_input_format": {
+    "template": "[점포 정보]\n점포명: {store_name}\n업종: {category}\n위치: {location}\n영업시간: {hours}\n가격대: {price_range}\n특징/대표메뉴: {features}\n리뷰 요약: {review_summary}",
+    "required_fields": ["store_name", "category", "location", "hours", "price_range", "features", "review_summary"],
+    "note": "review_summary는 값이 없으면 반드시 '없음'을 넣는다 (review_policy 참조)."
+  },
+  "tasks": {
+    "blog_new": {
+      "task_tag": "블로그_신규작성",
+      "target_count": 200,
+      "output_type": "text",
+      "instruction": "아래 [점포 정보]만을 근거로 이 가게를 소개하는 네이버 블로그 글을 작성하세요. 손님이 자주 묻는 질문에 답하는 FAQ형 구성(예: 위치·주차, 대표 메뉴, 영업시간, 어떤 사람에게 좋은지)을 포함하고, 소제목을 사용해 700~1000자 분량으로 작성하세요. [점포 정보]에 없는 사실(가격, 메뉴, 수상 이력, 리뷰 반응 등)은 절대 지어내지 마세요. 리뷰 요약이 '없음'인 경우 리뷰나 손님 반응을 언급하지 마세요.",
+      "input_composition": ["store_input_format"],
+      "output_format_note": "일반 텍스트. 소제목 포함, 700~1000자."
+    },
+    "blog_revise": {
+      "task_tag": "블로그_진단반영재작성",
+      "target_count": 80,
+      "output_type": "text",
+      "instruction": "아래 [기존 블로그 글]을 [진단 결과]의 지적 사항을 반영해 다시 작성하세요. [점포 정보]에 있는 사실은 유지하고, 진단에서 부족하다고 지적된 항목(예: 지역 키워드 부족, 영업시간 누락, 질문형 소제목 없음)을 보완하세요. [점포 정보]에 없는 사실은 추가하지 마세요. 사장님 피드백이 제공된 경우 해당 요청을 우선 반영하세요.",
+      "input_composition": ["store_input_format", "existing_content", "diagnosis_issues", "owner_feedback(optional)"],
+      "extra_input_format": "[기존 블로그 글]\n{existing_content}\n\n[진단 결과]\n{diagnosis_issues}\n\n[사장님 피드백]\n{owner_feedback}",
+      "output_format_note": "개선된 블로그 전문 텍스트. owner_feedback이 없으면 해당 블록 자체를 생략(추론 시 조립 단계에서 처리)."
+    },
+    "shorts": {
+      "task_tag": "쇼츠",
+      "target_count": 220,
+      "output_type": "json",
+      "instruction": "아래 [점포 정보]만을 근거로 이 가게 홍보용 쇼츠(15~60초) 콘텐츠를 만드세요. 대본은 도입(시선 끌기)-본문(가게 특징·메뉴)-CTA(방문 유도) 구조로 작성하세요. 반드시 아래 JSON 스키마 형식으로만 출력하고, JSON 외의 텍스트는 출력하지 마세요. [점포 정보]에 없는 사실은 지어내지 마세요. 리뷰 요약이 '없음'인 경우 손님 반응·후기를 언급하지 마세요.\n\n출력 스키마:\n{\"script\": \"15~60초 분량 영상 대본 (도입-본문-CTA)\", \"caption\": \"게시물 캡션 텍스트\", \"hashtags\": [\"#해시태그1\", \"#해시태그2\", \"#해시태그3\"]}",
+      "input_composition": ["store_input_format"],
+      "output_schema": {
+        "script": "string (15~60초 분량, 도입-본문-CTA)",
+        "caption": "string",
+        "hashtags": "string[] (3~7개, #으로 시작)"
+      },
+      "output_format_note": "JSON 단일 객체만 출력. 학습 데이터의 output도 동일 스키마의 JSON 문자열로 저장."
+    }
+  },
+  "training_sample_schema": {
+    "task": "블로그_신규작성 | 블로그_진단반영재작성 | 쇼츠",
+    "instruction": "위 tasks.*.instruction 사용",
+    "input": "store_input_format(+태스크별 extra_input_format)으로 조립된 문자열",
+    "output": "블로그: 텍스트 / 쇼츠: JSON 문자열"
+  }
+}

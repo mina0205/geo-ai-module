@@ -1,0 +1,18 @@
+# QLoRA 학습 (Day1~4)
+torch>=2.3
+transformers>=4.45
+datasets>=2.20
+accelerate>=0.33
+peft>=0.12
+trl>=0.9
+bitsandbytes>=0.43
+sentencepiece
+protobuf
+
+# 합성 데이터 생성 - 교사 모델 API (Day2~3)
+anthropic
+python-dotenv
+
+# RAG 골격 (Day5)
+chromadb
+sentence-transformers
