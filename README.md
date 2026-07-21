@@ -15,6 +15,7 @@
 
 ## Day 1 확정 사항
 
+- **GPU 환경**: Colab L4(22GB, bf16 지원)에서 검증 완료 (2026-07-21) — 4bit 로드+생성 테스트 통과: Qwen2.5-7B 5.6GB / EEVE-10.8B 6.3GB VRAM. 두 모델 모두 QLoRA 학습 가능
 - **베이스 모델**: 미확정 — `Qwen2.5-7B-Instruct` vs `EEVE-Korean-Instruct-10.8B` **두 모델 모두 QLoRA 학습 후 비교 선택** ([configs/models.json](configs/models.json)의 comparison_plan 참조)
 - **리뷰 필드 처리**: 리뷰 없는 점포는 필드 생략이 아니라 **명시적 `리뷰 요약: 없음` 표기** — 입력 포맷 고정으로 리뷰 환각 억제 (학습 데이터의 60% 이상은 리뷰 없음 케이스)
 - **태스크 템플릿**: [configs/task_templates.json](configs/task_templates.json) — 블로그_신규작성(200) / 블로그_진단반영재작성(80) / 쇼츠(220)
