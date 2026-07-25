@@ -10,7 +10,7 @@ sentencepiece
 protobuf
 
 # 합성 데이터 생성 - 교사 모델 API (Day2~3)
-anthropic
+openai
 python-dotenv
 
 # RAG 골격 (Day5)
