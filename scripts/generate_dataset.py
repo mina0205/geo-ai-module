@@ -141,7 +141,8 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stores", type=Path, default=STORES_DEFAULT)
     parser.add_argument("--out", type=Path, default=OUT_DEFAULT)
-    parser.add_argument("--per-task", type=int, default=10)
+    parser.add_argument("--per-task", type=int, default=10,
+                        help="태스크별 '최종 목표' 개수. 출력 파일에 이미 있는 개수를 세어 부족분만 생성(중단 후 재실행 안전)")
     parser.add_argument("--tasks", default="blog_new,blog_revise,shorts",
                         help="쉼표 구분: blog_new,blog_revise,shorts")
     parser.add_argument("--seed", type=int, default=42)
@@ -156,14 +157,39 @@ def main() -> None:
                   "blog_revise": lambda s: gen_blog_revise(s, rng)}
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
+
+    # 재실행 안전장치: 기존 파일에서 태스크별 완료 개수와 사용한 점포를 파악해 부족분만 생성
+    tag_by_key = {k: TEMPLATES["tasks"][k]["task_tag"] for k in generators}
+    done_by_tag: dict = {}
+    used_by_tag: dict = {}
+    if args.out.exists():
+        for line in args.out.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            r = json.loads(line)
+            done_by_tag[r["task"]] = done_by_tag.get(r["task"], 0) + 1
+            used_by_tag.setdefault(r["task"], set()).add(r.get("meta", {}).get("store_id"))
+
     done, failed = 0, 0
     store_iter = iter(stores * 10)  # 점포 수보다 많이 뽑아야 할 때 재사용
 
     with args.out.open("a", encoding="utf-8") as f:
         for task in tasks:
-            print(f"\n=== {task} × {args.per_task}개 (교사: {TEACHER_MODEL}) ===")
-            for i in range(args.per_task):
+            tag = tag_by_key[task]
+            already = done_by_tag.get(tag, 0)
+            need = args.per_task - already
+            if need <= 0:
+                print(f"\n=== {task}: 이미 {already}개 완료 (목표 {args.per_task}) — 건너뜀 ===")
+                continue
+            used = used_by_tag.setdefault(tag, set())
+            print(f"\n=== {task}: 기존 {already}개 + 신규 {need}개 (교사: {TEACHER_MODEL}) ===")
+            i = 0
+            while i < need:
                 store = next(store_iter)
+                if store["store_id"] in used:  # 같은 태스크에 같은 점포 중복 방지
+                    continue
+                used.add(store["store_id"])
+                i += 1
                 try:
                     record = generators[task](store)
                 except Exception as e:
@@ -183,7 +209,7 @@ def main() -> None:
                 f.write(json.dumps(record, ensure_ascii=False) + "\n")
                 f.flush()
                 done += 1
-                print(f"  [{i + 1}/{args.per_task}] {store['store_name']} ({store['category']}) ✓")
+                print(f"  [{i}/{need}] {store['store_name']} ({store['category']}) ✓")
                 time.sleep(0.3)
 
     print(f"\n완료: {done}개 저장, 실패 {failed}개 → {args.out}")
