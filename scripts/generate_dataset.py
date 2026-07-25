@@ -12,6 +12,8 @@
     → data/synthetic/dataset.jsonl (이어쓰기 방식, 중단 후 재실행 가능)
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import os
