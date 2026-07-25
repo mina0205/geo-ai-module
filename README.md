@@ -8,8 +8,8 @@
 | Day | 작업 | 상태 |
 |---|---|---|
 | Day 1 | GPU 환경 확인, 베이스 모델 후보 정리, 리뷰 필드 처리 확정, `task_templates.json` 확정 | ✅ |
-| Day 2 | 가상 점포 생성기 + 교사 모델 API 연동, 태스크당 10개 테스트 생성 | |
-| Day 3 | 합성 데이터 500개 생성 (블로그 280 + 쇼츠 220), 중복 제거·품질 검수 | |
+| Day 2 | 가상 점포 생성기 + 교사 모델 API 연동, 태스크당 10개 테스트 생성 | ✅ |
+| Day 3 | 합성 데이터 500개 생성 (블로그 280 + 쇼츠 220), 중복 제거·품질 검수 | ✅ |
 | Day 4 | QLoRA 1차 학습 (3 epoch) → `geo-lora-adapter-v0` 저장 | |
 | Day 5 | 더미 점포 추론 테스트, RAG 벡터DB 골격, Grounding Check 초안 | |
 
@@ -46,6 +46,13 @@ python scripts/check_gpu.py --load eeve  # EEVE-10.8B 4bit 로드+생성 테스�
 ```
 
 Colab에서는 `런타임 > 런타임 유형 변경`에서 GPU(L4/A100 권장)를 선택한 뒤 실행.
+
+## 학습 데이터 (Day 2~3 산출물)
+
+- [data/synthetic/dataset.jsonl](data/synthetic/dataset.jsonl) — 학습용 490개 (블로그 신규 196 / 재작성 78 / 쇼츠 216)
+- [data/synthetic/holdout.jsonl](data/synthetic/holdout.jsonl) — 두 후보 모델 비교평가용 10개 (학습에서 제외)
+- 교사 모델: gpt-4o / 리뷰 없음 점포 비율 60% / 자동 검수(없는 가격·평판 표현·교통 정보·쇼츠 스키마) 이슈 0건까지 삭제·재생성 반복
+- 재현: `generate_stores.py --count 300 --seed 7` → `generate_dataset.py --per-task 200|80|220`
 
 ## 스텁 서버 (백엔드 연동 개발용)
 

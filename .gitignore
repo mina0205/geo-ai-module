@@ -13,6 +13,10 @@ outputs/adapters/*
 !outputs/adapters/.gitkeep
 data/synthetic/*
 !data/synthetic/.gitkeep
+# 최종 학습 데이터는 Colab 학습 편의를 위해 커밋 (합성 데이터, ~1.5MB)
+!data/synthetic/dataset.jsonl
+!data/synthetic/holdout.jsonl
+!data/synthetic/stores.jsonl
 *.safetensors
 *.gguf
 chroma_db/
