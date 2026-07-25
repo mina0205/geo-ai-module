@@ -16,3 +16,7 @@ python-dotenv
 # RAG 골격 (Day5)
 chromadb
 sentence-transformers
+
+# API 서버 (스텁 → Day5 이후 실서빙)
+fastapi
+uvicorn

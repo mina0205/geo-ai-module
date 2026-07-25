@@ -47,6 +47,21 @@ python scripts/check_gpu.py --load eeve  # EEVE-10.8B 4bit 로드+생성 테스�
 
 Colab에서는 `런타임 > 런타임 유형 변경`에서 GPU(L4/A100 권장)를 선택한 뒤 실행.
 
+## 스텁 서버 (백엔드 연동 개발용)
+
+AI 모델 완성 전에 백엔드 개발을 시작할 수 있도록, [docs/api_spec.md](docs/api_spec.md)와 동일한
+요청/응답 형식으로 샘플 콘텐츠를 반환하는 가짜 서버를 제공한다.
+
+```bash
+pip install fastapi uvicorn
+uvicorn server.app:app --port 8000 --reload
+```
+
+- `GET /api/v1/health` · `POST /api/v1/generate` · `POST /api/v1/knowledge-base/update`
+- 오류 케이스 테스트: owner로 generate 호출 → 403, 잘못된 task → 400 (공통 오류 포맷)
+- `query`에 `flagged` 단어를 넣으면 `grounding_status: flagged` 응답 시뮬레이션 (검수 큐 흐름 개발용)
+- Day 5 이후 같은 인터페이스의 실제 모델 서빙 서버로 교체 예정 (백엔드 코드 변경 없음)
+
 ## 참고 문서
 
 - 기능명세서: `RAG_LoRA_기능명세서.md` (v0.2)
