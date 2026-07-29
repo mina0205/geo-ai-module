@@ -62,10 +62,15 @@ def main() -> None:
     dataset = load_as_messages(args.data)
     print(f"학습 데이터 {len(dataset)}개 / 모델 {cand['model_id']} / {args.epochs} epoch → {out_dir}")
 
+    # T4처럼 bf16 미지원 GPU에서는 fp16으로 자동 대체
+    use_bf16 = torch.cuda.is_bf16_supported()
+    compute_dtype = torch.bfloat16 if use_bf16 else torch.float16
+    print(f"정밀도: {'bf16' if use_bf16 else 'fp16 (bf16 미지원 GPU)'}")
+
     bnb = BitsAndBytesConfig(
         load_in_4bit=q["load_in_4bit"],
         bnb_4bit_quant_type=q["bnb_4bit_quant_type"],
-        bnb_4bit_compute_dtype=torch.bfloat16,
+        bnb_4bit_compute_dtype=compute_dtype,
         bnb_4bit_use_double_quant=True,
     )
     model = AutoModelForCausalLM.from_pretrained(
@@ -91,7 +96,8 @@ def main() -> None:
         warmup_ratio=0.03,
         logging_steps=10,
         save_strategy="epoch",
-        bf16=True,
+        bf16=use_bf16,
+        fp16=not use_bf16,
         max_length=2048,
         gradient_checkpointing=True,
         optim="paged_adamw_8bit",
