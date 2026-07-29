@@ -10,7 +10,7 @@
 | Day 1 | GPU 환경 확인, 베이스 모델 후보 정리, 리뷰 필드 처리 확정, `task_templates.json` 확정 | ✅ |
 | Day 2 | 가상 점포 생성기 + 교사 모델 API 연동, 태스크당 10개 테스트 생성 | ✅ |
 | Day 3 | 합성 데이터 500개 생성 (블로그 280 + 쇼츠 220), 중복 제거·품질 검수 | ✅ |
-| Day 4 | QLoRA 1차 학습 (3 epoch) → `geo-lora-adapter-v0` 저장 | |
+| Day 4 | QLoRA 1차 학습 (3 epoch) → `geo-lora-adapter-v0` 저장 | ✅ (qwen·eeve 각각, Drive 백업 완료) |
 | Day 5 | 더미 점포 추론 테스트, RAG 벡터DB 골격, Grounding Check 초안 | |
 
 ## Day 1 확정 사항
