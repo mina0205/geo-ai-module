@@ -24,13 +24,22 @@
 
 ```
 configs/
-  task_templates.json   # 태스크별 instruction·입출력 포맷 (FR-03)
-  models.json           # 베이스 모델 후보 + QLoRA 하이퍼파라미터 (r=16, alpha=32)
+  task_templates.json    # 태스크별 instruction·입출력 포맷 (FR-03)
+  models.json            # 베이스 모델 후보 + QLoRA 하이퍼파라미터 (r=16, alpha=32)
+src/geo_ai/
+  knowledge_base.py      # RAG 지식베이스 — Chroma 색인·검색 (FR-01, FR-02)
+  grounding.py           # Grounding Check — 사실 대조 검증 (FR-07)
 scripts/
-  check_gpu.py          # GPU 환경 점검 + 4bit 로드 테스트
-data/synthetic/         # 합성 학습 데이터 (git 미추적)
-outputs/adapters/       # LoRA 어댑터 (git 미추적)
-notebooks/              # Colab 실행용 노트북
+  check_gpu.py           # GPU 환경 점검 + 4bit 로드 테스트
+  generate_stores.py     # 가상 점포 생성기
+  generate_dataset.py    # 교사 모델 학습 데이터 생성 (재실행 안전)
+  train_qlora.py         # QLoRA 학습 (qwen/eeve 공용)
+  evaluate_adapters.py   # 홀드아웃 추론 (모델 비교 1단계)
+  compare_outputs.py     # 자동 지표 + 블라인드 평가지 (모델 비교 2단계)
+  day5_demo.py           # RAG·Grounding 골격 검증 데모 (GPU 불필요)
+server/app.py            # 백엔드 연동용 스텁 서버
+data/synthetic/          # 합성 학습 데이터 (dataset/holdout/stores만 커밋)
+outputs/adapters/        # LoRA 어댑터 (git 미추적, Drive 백업)
 ```
 
 ## GPU 환경 점검 (Colab/RunPod)
